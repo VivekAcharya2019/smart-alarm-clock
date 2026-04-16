@@ -1,5 +1,11 @@
 // Jenkins Pipeline for Smart Alarm Clock Android App
 //
+// Prerequisites on Jenkins server:
+// - Node.js 18+ and npm
+// - Java 17+ JDK (Java 21 recommended)
+// - Android SDK (set ANDROID_HOME environment variable)
+// - AWS CLI (for S3 upload)
+//
 // Required Environment Variables (set in Jenkins):
 // - S3_BUCKET_NAME: Your S3 bucket name (e.g., "smart-alarm-clock-20260416")
 // - UPLOAD_TO_S3: Set to "true" to enable S3 upload (default: false)
@@ -8,17 +14,13 @@
 // AWS credentials should be configured on Jenkins server or EC2 instance with IAM role
 
 pipeline {
-    agent {
-        docker {
-            image 'reactnativecommunity/react-native-android:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
-        ANDROID_HOME = '/opt/android'
-        ANDROID_SDK_ROOT = '/opt/android'
-        PATH = "$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
+        ANDROID_HOME = '/opt/android-sdk'
+        ANDROID_SDK_ROOT = '/opt/android-sdk'
+        JAVA_HOME = '/usr/lib/jvm/java-21-openjdk-amd64'
+        PATH = "$PATH:$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
     }
 
     stages {
@@ -32,7 +34,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing npm dependencies...'
-                sh 'npm ci'
+                sh 'npm install'
             }
         }
 
@@ -51,8 +53,8 @@ pipeline {
                 echo 'Building Android Debug APK...'
                 dir('android') {
                     sh 'chmod +x gradlew'
-                    sh './gradlew clean'
-                    sh './gradlew assembleDebug'
+                    sh './gradlew clean --no-daemon'
+                    sh './gradlew assembleDebug --no-daemon'
                 }
             }
         }

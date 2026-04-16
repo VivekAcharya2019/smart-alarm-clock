@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    environment {
+        ANDROID_HOME = '/opt/android-sdk'
+        ANDROID_SDK_ROOT = '/opt/android-sdk'
+        PATH = "$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/VivekAcharya2019/smart-alarm-clock.git'
+            }
+        }
+
+        stage('Install Node Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Build APK') {
+            steps {
+                dir('android') {
+                    sh 'chmod +x gradlew'
+                    sh './gradlew assembleDebug --no-daemon'
+                }
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'android/app/build/outputs/apk/debug/*.apk',
+                                 fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Build #${BUILD_NUMBER} completed!"
+            echo "Download APK: ${BUILD_URL}artifact/android/app/build/outputs/apk/debug/app-debug.apk"
+        }
+        failure {
+            echo "❌ Build #${BUILD_NUMBER} failed!"
+        }
+    }
+}

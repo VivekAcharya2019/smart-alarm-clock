@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-alarm-clock-builder
+    volumes:
+      - ./build-output:/app/android/app/build/outputs
+      - gradle-cache:/root/.gradle
+    working_dir: /app
+    command: bash -c "cd android && ./gradlew clean assembleDebug"
+
+  # Optional: Metro bundler service for development
+  metro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-alarm-clock-metro
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm start
+
+volumes:
+  gradle-cache:

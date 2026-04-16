@@ -1,0 +1,33 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Android/IntelliJ
+android/.gradle
+android/build
+android/app/build
+android/.idea
+android/local.properties
+*.iml
+
+# iOS
+ios/build
+ios/Pods
+*.xcworkspace
+*.xcuserdata
+
+# Metro
+.metro-health-check*
+
+# Testing
+coverage/
+
+# Misc
+.DS_Store
+.env
+.env.local
+.vscode/
+.idea/
+*.log
+*.tmp

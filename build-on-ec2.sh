@@ -6,6 +6,11 @@ echo "Smart Alarm Clock - EC2 Build Script"
 echo "========================================="
 echo ""
 
+# Save project directory at the start
+PROJECT_DIR=$(pwd)
+echo "Project directory: $PROJECT_DIR"
+echo ""
+
 # Configuration
 NODE_VERSION="18"
 JAVA_VERSION="21"
@@ -114,6 +119,9 @@ if [ ! -d "$ANDROID_HOME" ]; then
 
     echo "Cleaning up..."
     rm commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip
+
+    # Return to project directory
+    cd $PROJECT_DIR
 else
     echo "Android SDK directory already exists at $ANDROID_HOME"
 fi
@@ -146,26 +154,21 @@ $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
 echo "Android SDK components installed successfully."
 echo ""
 
-# Navigate to project directory
-echo "Step 7: Setting up project..."
-PROJECT_DIR=$(pwd)
-echo "Project directory: $PROJECT_DIR"
-
 # Install npm dependencies
-echo "Step 8: Installing npm dependencies..."
+echo "Step 7: Installing npm dependencies..."
 npm install
 echo "Dependencies installed successfully."
 echo ""
 
 # Make gradlew executable
-echo "Step 9: Preparing Gradle wrapper..."
+echo "Step 8: Preparing Gradle wrapper..."
 cd android
 chmod +x gradlew
 echo "Gradle wrapper ready."
 echo ""
 
 # Clean and build APK
-echo "Step 10: Building Android APK..."
+echo "Step 9: Building Android APK..."
 echo "This may take several minutes on first build..."
 ./gradlew clean --no-daemon
 ./gradlew assembleDebug --no-daemon
@@ -194,7 +197,7 @@ else
 fi
 
 # Create environment setup script for future use
-echo "Step 11: Creating environment setup script..."
+echo "Step 10: Creating environment setup script..."
 cat > $PROJECT_DIR/env-setup.sh << 'EOF'
 #!/bin/bash
 # Source this file to set up Android environment variables
